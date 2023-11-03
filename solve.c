@@ -26,6 +26,7 @@ static Face face[F] = {
 	{.vert={vert+9,vert+11,vert+10}},
 	{.vert={vert+10,vert+11,vert+6}},
 };
+static Face *incid[V][5];
 
 void printgame(void)
 {
@@ -36,12 +37,22 @@ void printgame(void)
 	}
 }
 
+void setup(Face *f)
+{
+	Face **next[V];
+	for (int v = 0; v < V; v++)
+		next[v] = &incid[v][0];
+	for (f = face; f < face+F; f++)
+		for (int c = 0; c < 3; c++)
+			*next[f->vert[c]-vert]++ = f;
+}
+
 int solve(Face *f)
 {
 	//printf("%c: ", 'A'+(char)(f-face));
 	//printvert();
 	if (f == NULL)
-		f = face;
+		setup(f = face);
 	else if (f == face+F)
 		return 1;
 	for (f->tile = tiles; f->tile < tiles+kinds; f->tile++) {
