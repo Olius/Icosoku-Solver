@@ -3,7 +3,7 @@
 #include "ico.h"
 #include "solve.h"
 
-int vert[V];
+Vert vert[V];
 static Face face[F] = {
 	{.vert={vert+0,vert+1,vert+2}},
 	{.vert={vert+0,vert+2,vert+3}},
@@ -26,7 +26,6 @@ static Face face[F] = {
 	{.vert={vert+9,vert+11,vert+10}},
 	{.vert={vert+10,vert+11,vert+6}},
 };
-static Face *incid[V][5];
 
 void printgame(void)
 {
@@ -40,8 +39,8 @@ void printgame(void)
 void setup(Face *f)
 {
 	Face **next[V];
-	for (int v = 0; v < V; v++)
-		next[v] = &incid[v][0];
+	for (int i = 0; i < V; i++)
+		next[i] = vert[i].incid;
 	for (f = face; f < face+F; f++)
 		for (int c = 0; c < 3; c++)
 			*next[f->vert[c]-vert]++ = f;
@@ -62,14 +61,14 @@ int solve(Face *f)
 		for (f->rot = 0; f->rot < 3; f->rot++) {
 			int c;
 			for (c = 0; c < 3; c++)
-				*f->vert[c] -= f->tile->dots[(c+f->rot)%3];
+				f->vert[c]->val -= f->tile->dots[(c+f->rot)%3];
 			for (c = 0; c < 3; c++)
-				if (*f->vert[c] < 0)
+				if (f->vert[c]->val < 0)
 					break;
 			if (c == 3 && solve(f+1))
 				return 1;
 			for (c = 0; c < 3; c++)
-				*f->vert[c] += f->tile->dots[(c+f->rot)%3];
+				f->vert[c]->val += f->tile->dots[(c+f->rot)%3];
 		}
 		f->tile->qty++;
 	}

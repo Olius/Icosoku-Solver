@@ -47,11 +47,14 @@ int readhex(int n, int buf[n])
 
 int main()
 {
-	if (readhex(V,vert)) {
+	int buf[V];
+	if (readhex(V,buf)) {
 		fprintf(stderr, "ico: expected hex character, "
 			"not '%c'\n", getchar());
 		exit(EXIT_FAILURE);
 	}
+	for (int v = 0; v < V; v++)
+		vert[v].val = buf[v];
 	if (solve(NULL))
 		printgame();
 }
