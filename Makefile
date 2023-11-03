@@ -1,1 +1,1 @@
-ico: ico.c ico.h
+ico: ico.c solve.c
