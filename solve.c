@@ -41,9 +41,11 @@ void setup(Face *f)
 	Face **next[V];
 	for (int i = 0; i < V; i++)
 		next[i] = vert[i].incid;
-	for (f = face; f < face+F; f++)
+	for (f = face; f < face+F; f++) {
+		f->tile = NULL;
 		for (int c = 0; c < 3; c++)
 			*next[f->vert[c]-vert]++ = f;
+	}
 }
 
 int solve(Face *f)
@@ -62,9 +64,16 @@ int solve(Face *f)
 			int c;
 			for (c = 0; c < 3; c++)
 				f->vert[c]->val -= f->tile->dots[(c+f->rot)%3];
-			for (c = 0; c < 3; c++)
+			for (c = 0; c < 3; c++) {
 				if (f->vert[c]->val < 0)
 					break;
+				int i;
+				for (i = 0; i < 5; i++)
+					if (f->vert[c]->incid[i]->tile == NULL)
+						break;
+				if (i == 5 && f->vert[c]->val > 0)
+					break;
+			}
 			if (c == 3 && solve(f+1))
 				return 1;
 			for (c = 0; c < 3; c++)
@@ -72,5 +81,6 @@ int solve(Face *f)
 		}
 		f->tile->qty++;
 	}
+	f->tile = NULL;
 	return 0;
 }
