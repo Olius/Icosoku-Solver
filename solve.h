@@ -11,5 +11,5 @@ struct Face {
 };
 
 extern Vert vert[V];
-int solve(Face *f);
+int solve(Face **f);
 void printgame(void);

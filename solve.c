@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ico.h"
 #include "solve.h"
 
 Vert vert[V];
+Face *sface[F];
 static Face face[F] = {
 	{.vert={vert+0,vert+1,vert+2}},
 	{.vert={vert+0,vert+2,vert+3}},
@@ -36,6 +38,15 @@ void printgame(void)
 	}
 }
 
+int facecmp(const void *p1, const void *p2)
+{
+	Face *f1 = *(Face **)p1, *f2 = *(Face **)p2;
+	int d = 0;
+	for (int c = 0; c < 3; c++)
+		d += f1->vert[c]->val - f2->vert[c]->val;
+	return d;
+}
+
 void setup(Face *f)
 {
 	Face **next[V];
@@ -46,16 +57,22 @@ void setup(Face *f)
 		for (int c = 0; c < 3; c++)
 			*next[f->vert[c]-vert]++ = f;
 	}
+	for (int i = 0; i < F; i++)
+		sface[i] = &face[i];
+	qsort(sface, F, sizeof(*sface), facecmp);
 }
 
-int solve(Face *f)
+int solve(Face **sf)
 {
 	//printf("%c: ", 'A'+(char)(f-face));
 	//printvert();
-	if (f == NULL)
-		setup(f = face);
-	else if (f == face+F)
+	if (sf == NULL) {
+		setup(face);
+		sf = sface;
+	}
+	else if (sf == sface+F)
 		return 1;
+	Face *f = *sf;
 	for (f->tile = tiles; f->tile < tiles+kinds; f->tile++) {
 		if (f->tile->qty <= 0)
 			continue;
@@ -74,7 +91,7 @@ int solve(Face *f)
 				if (i == 5 && f->vert[c]->val > 0)
 					break;
 			}
-			if (c == 3 && solve(f+1))
+			if (c == 3 && solve(sf+1))
 				return 1;
 			for (c = 0; c < 3; c++)
 				f->vert[c]->val += f->tile->dots[(c+f->rot)%3];
