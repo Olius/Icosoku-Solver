@@ -1,103 +1,59 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <stddef.h>
 
-#include "ico.h"
 #include "solve.h"
 
-Vert vert[V];
-Face *sface[F];
-static Face face[F] = {
-	{.vert={vert+0,vert+1,vert+2}},
-	{.vert={vert+0,vert+2,vert+3}},
-	{.vert={vert+0,vert+3,vert+4}},
-	{.vert={vert+0,vert+4,vert+5}},
-	{.vert={vert+0,vert+5,vert+1}},
-	{.vert={vert+1,vert+6,vert+2}},
-	{.vert={vert+2,vert+6,vert+7}},
-	{.vert={vert+2,vert+7,vert+3}},
-	{.vert={vert+3,vert+7,vert+8}},
-	{.vert={vert+3,vert+8,vert+4}},
-	{.vert={vert+4,vert+8,vert+9}},
-	{.vert={vert+4,vert+9,vert+5}},
-	{.vert={vert+5,vert+9,vert+10}},
-	{.vert={vert+5,vert+10,vert+1}},
-	{.vert={vert+1,vert+10,vert+6}},
-	{.vert={vert+6,vert+11,vert+7}},
-	{.vert={vert+7,vert+11,vert+8}},
-	{.vert={vert+8,vert+11,vert+9}},
-	{.vert={vert+9,vert+11,vert+10}},
-	{.vert={vert+10,vert+11,vert+6}},
+static int corner[20][3] = {
+	 0,  1,  2,
+	 0,  2,  3,
+	 0,  3,  4,
+	 0,  4,  5,
+	 0,  5,  1,
+	 1,  6,  2,
+	 2,  6,  7,
+	 2,  7,  3,
+	 3,  7,  8,
+	 3,  8,  4,
+	 4,  8,  9,
+	 4,  9,  5,
+	 5,  9, 10,
+	 5, 10,  1,
+	 1, 10,  6,
+	 6, 11,  7,
+	 7, 11,  8,
+	 8, 11,  9,
+	 9, 11, 10,
+	10, 11,  6,
 };
 
-void printgame(void)
+static int try(const size_t k, tiledef ds[k], face fs[20], face *f)
 {
-	for (Face *f = face; f < face+F; f++) {
-		for (int c = 0; c < 3; c++)
-			printf("%X", f->tile->dots[(c+f->rot)%3]);
-		putchar('\n');
-	}
-}
-
-int facecmp(const void *p1, const void *p2)
-{
-	Face *f1 = *(Face **)p1, *f2 = *(Face **)p2;
-	int d = 0;
-	for (int c = 0; c < 3; c++)
-		d += f1->vert[c]->val - f2->vert[c]->val;
-	return d;
-}
-
-void setup(Face *f)
-{
-	Face **next[V];
-	for (int i = 0; i < V; i++)
-		next[i] = vert[i].incid;
-	for (f = face; f < face+F; f++) {
-		f->tile = NULL;
-		for (int c = 0; c < 3; c++)
-			*next[f->vert[c]-vert]++ = f;
-	}
-	for (int i = 0; i < F; i++)
-		sface[i] = &face[i];
-	qsort(sface, F, sizeof(*sface), facecmp);
-}
-
-int solve(Face **sf)
-{
-	//printf("%c: ", 'A'+(char)(f-face));
-	//printvert();
-	if (sf == NULL) {
-		setup(face);
-		sf = sface;
-	}
-	else if (sf == sface+F)
+	if (f == fs+20)
 		return 1;
-	Face *f = *sf;
-	for (f->tile = tiles; f->tile < tiles+kinds; f->tile++) {
-		if (f->tile->qty <= 0)
+	for (f->t = ds; f->t < ds+k; f->t++) {
+		if (f->t->q == 0)
 			continue;
-		f->tile->qty--;
-		for (f->rot = 0; f->rot < 3; f->rot++) {
+		f->t->q--;
+		for (f->r = 0; f->r < 3; f->r++) {
+			for (int c = 0; c < 3; c++)
+				*f->n[c] -= f->t->n[(c+f->r)%3];
 			int c;
 			for (c = 0; c < 3; c++)
-				f->vert[c]->val -= f->tile->dots[(c+f->rot)%3];
-			for (c = 0; c < 3; c++) {
-				if (f->vert[c]->val < 0)
+				if (*f->n[c] < 0)
 					break;
-				int i;
-				for (i = 0; i < 5; i++)
-					if (f->vert[c]->incid[i]->tile == NULL)
-						break;
-				if (i == 5 && f->vert[c]->val > 0)
-					break;
-			}
-			if (c == 3 && solve(sf+1))
+			if (c == 3 && try(k,ds,fs,f+1))
 				return 1;
-			for (c = 0; c < 3; c++)
-				f->vert[c]->val += f->tile->dots[(c+f->rot)%3];
+			for (int c = 0; c < 3; c++)
+				*f->n[c] += f->t->n[(c+f->r)%3];
 		}
-		f->tile->qty++;
+		f->t->q++;
 	}
-	f->tile = NULL;
 	return 0;
+}
+
+int solve(size_t k, tiledef ds[k], num n[12], face fs[20])
+{
+	for (face *f = fs; f < fs+20; f++)
+		for (int c = 0; c < 3; c++)
+			f->n[c] = n + corner[f-fs][c];
+	return try(k,ds,fs,fs);
 }

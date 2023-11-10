@@ -1,60 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
-#include "ico.h"
 #include "solve.h"
+#include "print.h"
 
-Tile tiles[] = {
-	{3,3,3, 1},
-	{2,2,2, 1},
-	{1,3,2, 2},
-	{1,2,3, 2},
-	{1,1,1, 1},
-	{0,3,3, 1},
-	{0,2,2, 1},
-	{0,2,1, 3},
-	{0,1,2, 3},
-	{0,1,1, 1},
-	{0,0,3, 1},
-	{0,0,2, 1},
-	{0,0,1, 1},
-	{0,0,0, 1},
-};
-const int kinds = sizeof(tiles)/sizeof(Tile);
-
-void printhex(int n, int buf[n])
+void read(num n[12])
 {
-	for (int *p = buf; p < buf+n; p++)
-		printf("%X", *p);
-	putchar('\n');
+	for (int i = 0; i < 12; i++) {
+		char s[] = "0";
+		s[0] = getchar();
+		n[i] = strtol(s, NULL, 16);
+	}
 }
 
-int readhex(int n, int buf[n])
+int main(void)
 {
-	for (int i = 0; i < n; i++) {
-		int c = getchar();
-		if (c == EOF || !isxdigit(c)) {
-			ungetc(c, stdin);
-			return -1;
-		}
-		char str[] = {0,'\0'};
-		str[0] = c;
-		buf[i] = strtol(str, NULL, 16);
-	}
-	return 0;
-}
+	tiledef ds[] = {
+		3,3,3, 1,
+		2,2,2, 1,
+		1,3,2, 2,
+		1,2,3, 2,
+		1,1,1, 1,
+		0,3,3, 1,
+		0,2,2, 1,
+		0,2,1, 3,
+		0,1,2, 3,
+		0,1,1, 1,
+		0,0,3, 1,
+		0,0,2, 1,
+		0,0,1, 1,
+		0,0,0, 1,
+	};
+	const int k = sizeof(ds)/sizeof(tiledef);
 
-int main()
-{
-	int buf[V];
-	if (readhex(V,buf)) {
-		fprintf(stderr, "ico: expected hex character, "
-			"not '%c'\n", getchar());
-		exit(EXIT_FAILURE);
-	}
-	for (int v = 0; v < V; v++)
-		vert[v].val = buf[v];
-	if (solve(NULL))
-		printgame();
+	num n[12];
+	read(n);
+	face fs[20];
+	return !solve(k,ds,n,fs) || print(fs);
 }

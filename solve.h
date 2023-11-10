@@ -1,15 +1,13 @@
-typedef struct Vert Vert;
-typedef struct Face Face;
-struct Vert {
-	int val;
-	Face */*const*/ incid[5];
-};
-struct Face {
-	Tile *tile;
-	int rot;
-	Vert *const vert[3];
-};
+typedef int num;
+typedef struct {
+	const num n[3];
+	unsigned int q;
+} tiledef;
+typedef tiledef *tile;
+typedef struct {
+	num *n[3];
+	tile t;
+	int r;
+} face;
 
-extern Vert vert[V];
-int solve(Face **f);
-void printgame(void);
+int solve(size_t k, tiledef td[], num n[12], face fs[20]);
