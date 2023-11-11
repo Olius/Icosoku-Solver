@@ -1,7 +1,17 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "solve.h"
 #include "io.h"
+
+void read(vertex vs[12])
+{
+	for (vertex *v = vs; v < vs+12; v++) {
+		char s[] = "0";
+		s[0] = getchar();
+		v->n = strtol(s, NULL, 16);
+	}
+}
 
 int printface(face *f)
 {
