@@ -4,14 +4,16 @@ typedef struct {
 	unsigned int q;
 } tiledef;
 typedef tiledef *tile;
-typedef struct {
-	tile *ts[5];
+typedef struct vertex vertex;
+typedef struct face face;
+struct vertex {
+	face *fs[5];
 	num n;
-} vertex;
-typedef struct {
+};
+struct face {
 	vertex *vs[3];
 	tile t;
 	int r;
-} face;
+};
 
 int solve(size_t k, tiledef td[], vertex vs[12], face fs[20]);
