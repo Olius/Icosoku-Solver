@@ -2,15 +2,13 @@
 #include <stdlib.h>
 
 #include "solve.h"
+#include "readhex.h"
 #include "io.h"
 
 void read(vertex vs[12])
 {
-	for (vertex *v = vs; v < vs+12; v++) {
-		char s[] = "0";
-		s[0] = getchar();
-		v->n = strtol(s, NULL, 16);
-	}
+	for (vertex *v = vs; v < vs+12; v++)
+		v->n = readhex();
 }
 
 int printface(face *f)
