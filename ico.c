@@ -4,12 +4,12 @@
 #include "solve.h"
 #include "print.h"
 
-void read(num n[12])
+void read(vertex vs[12])
 {
-	for (int i = 0; i < 12; i++) {
+	for (vertex *v = vs; v < vs+12; v++) {
 		char s[] = "0";
 		s[0] = getchar();
-		n[i] = strtol(s, NULL, 16);
+		v->n = strtol(s, NULL, 16);
 	}
 }
 
@@ -33,8 +33,8 @@ int main(void)
 	};
 	const int k = sizeof(ds)/sizeof(tiledef);
 
-	num n[12];
-	read(n);
+	vertex vs[12];
+	read(vs);
 	face fs[20];
-	return !solve(k,ds,n,fs) || print(fs);
+	return !solve(k,ds,vs,fs) || print(fs);
 }
