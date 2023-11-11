@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "solve.h"
-#include "print.h"
+#include "io.h"
 
 void read(vertex vs[12])
 {

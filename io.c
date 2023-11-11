@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "solve.h"
-#include "print.h"
+#include "io.h"
 
 int printface(face *f)
 {
