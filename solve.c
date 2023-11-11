@@ -12,15 +12,13 @@ static int try(const size_t k, tiledef ds[k], face fs[20], face *f)
 			continue;
 		f->t->q--;
 		for (f->r = 0; f->r < 3; f->r++) {
-			for (int c = 0; c < 3; c++)
-				f->vs[c]->n -= f->t->n[(c+f->r)%3];
 			int c;
 			for (c = 0; c < 3; c++)
-				if (f->vs[c]->n < 0)
+				if ((f->vs[c]->n -= f->t->n[(c+f->r)%3]) < 0)
 					break;
-			if (c == 3 && try(k,ds,fs,f+1))
+			if (c == 3 && c-- && try(k,ds,fs,f+1))
 				return 1;
-			for (int c = 0; c < 3; c++)
+			for (; c >= 0; c--)
 				f->vs[c]->n += f->t->n[(c+f->r)%3];
 		}
 		f->t->q++;
