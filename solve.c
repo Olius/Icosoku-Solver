@@ -30,8 +30,13 @@ static int try(const size_t k, tiledef ds[k], face fs[20], face *f)
 
 int solve(size_t k, tiledef ds[k], vertex vs[12], face fs[20])
 {
+	face **ifs[12];
+	for (int i = 0; i < 12; i++)
+		ifs[i] = vs[i].fs;
 	for (face *f = fs; f < fs+20; f++)
-		for (int c = 0; c < 3; c++)
+		for (int c = 0; c < 3; c++) {
 			f->vs[c] = vs + corners[f-fs][c];
+			*ifs[corners[f-fs][c]]++ = f;
+		}
 	return try(k,ds,fs,fs);
 }
